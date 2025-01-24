@@ -14,9 +14,12 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Chrome
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    dpkg -i google-chrome-stable_current_amd64.deb; apt-get -y install -f && \
-    rm google-chrome-stable_current_amd64.deb
+RUN apt-get update && apt-get install -y wget curl unzip && \
+    sudo wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    sudo dpkg -i google-chrome-stable_current_amd64.deb || apt-get -fy install && \
+    wget https://storage.googleapis.com/chrome-for-testing-public/132.0.6834.110/linux64/chromedriver-linux64.zip && \
+    unzip -o ~/klaw/klaw_app/chromedriver-linux64.zip && \
+    chmod +x /usr/local/bin/chromedriver-linux64/chromedriver
 
 # Set the working directory
 WORKDIR /app
