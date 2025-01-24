@@ -1,20 +1,24 @@
+from flask import Flask, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
 import time
 
-# Set up the Chrome webdriver
+# Initialize Flask app
+app = Flask(__name__)
+
+# Set up the Chrome webdriver options
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')  # Run Chrome in headless mode
 options.add_argument('--no-sandbox')
 options.add_argument('--disable-dev-shm-usage')
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
+# Function to extract data from the website
 def extract_data():
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     try:
         URL = "https://ktu.edu.in/Menu/announcements"
         driver.get(URL)
@@ -50,12 +54,19 @@ def extract_data():
                 "CONTENT": second_data,
             })
 
-        driver.quit()
         return data_list
 
     except Exception as e:
         print(f"An error occurred: {e}")
-        driver.quit()
         return []
+    finally:
+        driver.quit()  # Ensure the driver is quit even if an error occurs
 
-        
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    data = extract_data()  # Call the extract_data function
+    return jsonify(data)  # Return the data as a JSON response
+
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 8080))  # Default to 8080 if PORT is not set
+    app.run(host='0.0.0.0', port=port)
