@@ -1,0 +1,6 @@
+services:
+  flask:
+    build: .
+    ports:
+      - "5000:5000"
+    container_name: klaw_noti_api
