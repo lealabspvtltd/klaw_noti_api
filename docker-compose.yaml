@@ -1,6 +1,20 @@
+version: "3.8"
 services:
   flask:
     build: .
-    ports:
-      - "5000:5000"
     container_name: klaw_noti_api
+    expose:
+      - "5000"
+  
+  nginx:
+    image: nginx:latest
+    container_name: klaw_noti_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - flask
